@@ -1,0 +1,9 @@
+from django.contrib import admin
+from .models import UserProfile  # Import your UserProfile model
+
+# Register the UserProfile model with the admin site
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email')  # Define the fields to display in the admin list view
+    search_fields = ('username', 'email')  # Enable searching by username and email
+    list_filter = ('username','email')  # Add filters for date_joined or any other relevant field
