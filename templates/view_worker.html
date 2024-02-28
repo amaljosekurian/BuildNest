@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workers</title>
+    <style>
+        .download-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+        /* CSS for table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        /* CSS for buttons */
+        .quantity {
+            display: flex;
+            align-items: center;
+        }
+        .quantity input {
+            width: 50px;
+            text-align: center;
+        }
+        .quantity input[type="number"]::-webkit-inner-spin-button,
+        .quantity input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .quantity button {
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Workers</h1>
+    <form id="workers-form" method="post">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Job Role</th>
+                    <th>State</th>
+                    <th>District</th>
+                    <th>Mobile Number</th>
+                    <th>Salary Frequency</th>
+                    <th>Salary Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for worker in workers %}
+                <tr>
+                    <td>{{ worker.name }}</td>
+                    <td>{{ worker.job_role }}</td>
+                    <td>{{ worker.state }}</td>
+                    <td>{{ worker.district }}</td>
+                    <td>{{ worker.mobile_number }}</td>
+                    {% comment %} <td>
+                        <select name="salary_frequency_{{ worker.pk }}">
+                            <option value="weekly">Weekly</option>
+                            <option value="daily">Daily</option>
+                        </select>
+                    </td> {% endcomment %}
+                    {% comment %} <td> {% endcomment %}
+                        {% comment %} <div class="quantity">
+                            <input type="number" name="salary_amount_{{ worker.pk }}" value="1000">
+                            {% comment %} <button class="plus">+</button>
+                            <button class="minus">-</button> {% endcomment %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %} 
+            </tbody>
+        </table>
+        <button type="submit">Submit</button>
+    </form>
+    <button onclick="downloadCSV()" id= "download-btn" class="download-btn">Download CSV</button>
+
+    <script>
+        function downloadCSV() {
+            // Get table and table headings
+            var table = document.querySelector('table');
+            var rows = table.querySelectorAll('tr');
+            var headings = [];
+            table.querySelectorAll('th').forEach(function(th) {
+                headings.push(th.textContent);
+            });
+            
+            // Initialize CSV content with table headings
+            var csvContent = headings.join(',') + '\n';
+            
+            // Loop through table rows
+            rows.forEach(function(row) {
+                var rowData = [];
+                row.querySelectorAll('td').forEach(function(cell) {
+                    rowData.push(cell.textContent);
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            // Create a Blob object and initiate file download
+            var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, 'workers.csv');
+            } else {
+                var link = document.createElement('a');
+                if (link.download !== undefined) {
+                    var url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', 'workers.csv');
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
